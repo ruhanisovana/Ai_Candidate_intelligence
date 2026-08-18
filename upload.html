@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Candidate</title>
+</head>
+<body>
+
+    <h1>Upload Candidate</h1>
+
+    <form action="/upload" method="POST">
+
+        <label>Full Name</label><br>
+        <input type="text" name="full_name" required><br><br>
+
+        <label>Email</label><br>
+        <input type="email" name="email" required><br><br>
+
+        <label>GitHub Username</label><br>
+        <input type="text" name="github_username"><br><br>
+
+        <label>Portfolio Link</label><br>
+        <input type="url" name="portfolio"><br><br>
+
+        <label>Job Description</label><br>
+        <textarea name="job_description" rows="6" cols="40"></textarea><br><br>
+
+        <button type="submit">Save Candidate</button>
+
+    </form>
+
+</body>
+</html>
