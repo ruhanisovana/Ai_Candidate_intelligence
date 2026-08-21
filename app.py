@@ -164,8 +164,8 @@ def candidate_detail(candidate_id):
         return "Candidate not found.", 404
 
     return render_template(
-        "candidate_detail.html",
-        candidate=candidate
+    "candidate_details.html",
+    candidate=candidate
     )
 
 
