@@ -1,1 +1,185 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Candidate Details - Kirsov AI</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .field {
+            margin: 18px 0;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .value {
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 7px;
+            word-break: break-word;
+        }
+
+        a {
+            color: #2563eb;
+        }
+
+        .buttons {
+            margin-top: 25px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .back {
+            text-decoration: none;
+            background: #2563eb;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 7px;
+        }
+
+        .delete {
+            border: none;
+            background: #dc2626;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        .delete:hover {
+            background: #b91c1c;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>Candidate Details</h1>
+
+        <div class="field">
+            <div class="label">Serial / ID</div>
+            <div class="value">
+                {{ candidate["id"] }}
+            </div>
+        </div>
+
+        <div class="field">
+            <div class="label">Full Name</div>
+            <div class="value">
+                {{ candidate["full_name"] }}
+            </div>
+        </div>
+
+        <div class="field">
+            <div class="label">Email</div>
+            <div class="value">
+                {{ candidate["email"] }}
+            </div>
+        </div>
+
+        <div class="field">
+            <div class="label">GitHub Username</div>
+            <div class="value">
+                {% if candidate["github_username"] %}
+                    {{ candidate["github_username"] }}
+                {% else %}
+                    Not provided
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="field">
+            <div class="label">Portfolio</div>
+            <div class="value">
+                {% if candidate["portfolio"] %}
+                    <a href="{{ candidate['portfolio'] }}"
+                       target="_blank">
+                        {{ candidate["portfolio"] }}
+                    </a>
+                {% else %}
+                    Not provided
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="field">
+            <div class="label">Job Description</div>
+            <div class="value">
+                {% if candidate["job_description"] %}
+                    {{ candidate["job_description"] }}
+                {% else %}
+                    Not provided
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="field">
+            <div class="label">Created At</div>
+            <div class="value">
+                {{ candidate["created_at"] }}
+            </div>
+        </div>
+
+
+        <div class="buttons">
+
+            <a href="/candidates" class="back">
+                ← Back to Candidates
+            </a>
+
+            <form
+                action="/candidate/{{ candidate['id'] }}/delete"
+                method="POST"
+                onsubmit="return confirm('Delete this candidate permanently?');"
+            >
+
+                <button
+                    type="submit"
+                    class="delete"
+                >
+                    Delete Candidate
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
