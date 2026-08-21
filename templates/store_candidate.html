@@ -1,1 +1,266 @@
 
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>All Candidates</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 15px;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 16px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 7px;
+        }
+
+        .button:hover {
+            opacity: 0.9;
+        }
+
+        .table-box {
+            background: white;
+            border-radius: 12px;
+            overflow-x: auto;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eeeeee;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        .details {
+            background: #2563eb;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            border: none;
+        }
+
+        .delete {
+            background: #dc2626;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .delete:hover {
+            background: #b91c1c;
+        }
+
+        .empty {
+            background: white;
+            padding: 35px;
+            text-align: center;
+            border-radius: 12px;
+        }
+
+        .actions {
+            white-space: nowrap;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+
+        <h1>All Candidates</h1>
+
+        <div>
+
+            <a href="/" class="button">
+                Home
+            </a>
+
+            <a href="/upload" class="button">
+                Upload Candidate
+            </a>
+
+        </div>
+
+    </div>
+
+
+    {% if candidates %}
+
+    <div class="table-box">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Serial</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>GitHub</th>
+                    <th>Actions</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for candidate in candidates %}
+
+                <tr>
+
+                    <!-- SERIAL NUMBER -->
+
+                    <td>
+                        {{ loop.index }}
+                    </td>
+
+
+                    <!-- NAME -->
+
+                    <td>
+                        <strong>
+                            {{ candidate["full_name"] }}
+                        </strong>
+                    </td>
+
+
+                    <!-- EMAIL -->
+
+                    <td>
+                        {{ candidate["email"] }}
+                    </td>
+
+
+                    <!-- GITHUB -->
+
+                    <td>
+
+                        {% if candidate["github_username"] %}
+
+                            {{ candidate["github_username"] }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- ACTIONS -->
+
+                    <td class="actions">
+
+                        <!-- VIEW FULL DETAILS -->
+
+                        <a
+                            href="/candidate/{{ candidate['id'] }}"
+                            class="details"
+                        >
+                            View Details
+                        </a>
+
+
+                        <!-- DELETE CANDIDATE -->
+
+                        <form
+                            action="/candidate/{{ candidate['id'] }}/delete"
+                            method="POST"
+                            style="display: inline;"
+                            onsubmit="return confirm('Delete this candidate permanently?');"
+                        >
+
+                            <button
+                                type="submit"
+                                class="delete"
+                            >
+                                Delete
+                            </button>
+
+                        </form>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% else %}
+
+    <div class="empty">
+
+        <h2>No Candidates Yet</h2>
+
+        <p>
+            You haven't uploaded any candidates.
+        </p>
+
+        <a href="/upload" class="button">
+            Upload Candidate
+        </a>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+
+</html>
