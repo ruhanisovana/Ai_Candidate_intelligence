@@ -278,6 +278,137 @@ def jobs_page():
         "jobs.html",
         jobs=jobs
     )
+
+@app.route("/candidate/<int:candidate_id>/analyze", methods=["GET", "POST"])
+def analyze_candidate(candidate_id):
+
+    conn = get_db_connection()
+
+    # Get candidate
+    candidate = conn.execute("""
+        SELECT
+            id,
+            full_name,
+            email,
+            github_username,
+            portfolio,
+            job_description,
+            created_at
+        FROM candidates
+        WHERE id = ?
+    """, (candidate_id,)).fetchone()
+
+    # Candidate doesn't exist
+    if candidate is None:
+        conn.close()
+        return "Candidate not found.", 404
+
+    # Get all jobs
+    jobs = conn.execute("""
+        SELECT
+            id,
+            job_title,
+            job_description,
+            required_skills
+        FROM jobs
+        ORDER BY id DESC
+    """).fetchall()
+
+    conn.close()
+
+    # No jobs created yet
+    if not jobs:
+        return """
+        <h2>No jobs available.</h2>
+        <p>Create a job before analyzing a candidate.</p>
+        <a href="/create-job">Create Job</a>
+        """
+
+    # Show job selection
+    if request.method == "GET":
+
+        return render_template(
+            "analyze_candidate.html",
+            candidate=candidate,
+            jobs=jobs
+        )
+
+    # Selected job
+    job_id = request.form.get("job_id")
+
+    if not job_id:
+        return "Please select a job.", 400
+
+    conn = get_db_connection()
+
+    job = conn.execute("""
+        SELECT
+            id,
+            job_title,
+            job_description,
+            required_skills
+        FROM jobs
+        WHERE id = ?
+    """, (job_id,)).fetchone()
+
+    conn.close()
+
+    if job is None:
+        return "Job not found.", 404
+
+    # -----------------------------
+    # PREPARE SKILLS
+    # -----------------------------
+
+    required_skills = [
+        skill.strip().lower()
+        for skill in job["required_skills"].split(",")
+        if skill.strip()
+    ]
+
+    # Combine candidate information
+    candidate_text = " ".join([
+        candidate["full_name"] or "",
+        candidate["github_username"] or "",
+        candidate["portfolio"] or "",
+        candidate["job_description"] or ""
+    ]).lower()
+
+    # -----------------------------
+    # MATCH SKILLS
+    # -----------------------------
+
+    matched_skills = []
+    missing_skills = []
+
+    for skill in required_skills:
+
+        if skill in candidate_text:
+            matched_skills.append(skill)
+        else:
+            missing_skills.append(skill)
+
+    # -----------------------------
+    # CALCULATE MATCH
+    # -----------------------------
+
+    if required_skills:
+
+        match_percentage = round(
+            (len(matched_skills) / len(required_skills)) * 100
+        )
+
+    else:
+        match_percentage = 0
+
+    return render_template(
+        "analysis_result.html",
+        candidate=candidate,
+        job=job,
+        matched_skills=matched_skills,
+        missing_skills=missing_skills,
+        match_percentage=match_percentage
+    )
 # -----------------------------
 # RUN APPLICATION
 # -----------------------------
