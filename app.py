@@ -97,7 +97,80 @@ def home():
 # UPLOAD CANDIDATE
 # -----------------------------
 
+@app.route("/upload", methods=["GET", "POST"])
+def upload():
 
+    if request.method == "POST":
+
+        full_name = request.form.get(
+            "full_name", ""
+        ).strip()
+
+        email = request.form.get(
+            "email", ""
+        ).strip()
+
+        github_username = request.form.get(
+            "github_username", ""
+        ).strip()
+
+        linkedin = request.form.get(
+            "linkedin", ""
+        ).strip()
+
+        portfolio = request.form.get(
+            "portfolio", ""
+        ).strip()
+
+        skills = request.form.get(
+            "skills", ""
+        ).strip()
+
+        experience = request.form.get(
+            "experience", ""
+        ).strip()
+
+        job_description = request.form.get(
+            "job_description", ""
+        ).strip()
+
+        # Basic validation
+
+        if not full_name or not email:
+
+            return "Full name and email are required.", 400
+
+        conn = get_db_connection()
+
+        conn.execute("""
+            INSERT INTO candidates (
+                full_name,
+                email,
+                github_username,
+                linkedin,
+                portfolio,
+                skills,
+                experience,
+                job_description
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            full_name,
+            email,
+            github_username,
+            linkedin,
+            portfolio,
+            skills,
+            experience,
+            job_description
+        ))
+
+        conn.commit()
+        conn.close()
+
+        return redirect("/candidates")
+
+    return render_template("upload.html")
 # -----------------------------
 # STORED CANDIDATES
 # -----------------------------
