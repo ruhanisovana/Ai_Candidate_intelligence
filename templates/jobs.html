@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Jobs</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .button {
+            background: #2563eb;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 7px;
+            text-decoration: none;
+        }
+
+        .job {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+        }
+
+        .skills {
+            margin-top: 12px;
+            color: #475569;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+
+        <h1>Jobs</h1>
+
+        <a href="/create-job" class="button">
+            Create Job
+        </a>
+
+    </div>
+
+    {% if jobs %}
+
+        {% for job in jobs %}
+
+        <div class="job">
+
+            <h2>
+                {{ job["job_title"] }}
+            </h2>
+
+            <p>
+                {{ job["job_description"] }}
+            </p>
+
+            <div class="skills">
+
+                <strong>Required Skills:</strong>
+
+                {{ job["required_skills"] }}
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="job">
+            <h2>No jobs yet</h2>
+
+            <p>
+                Create your first job requirement.
+            </p>
+        </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+
+</html>
