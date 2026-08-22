@@ -205,7 +205,40 @@ def delete_candidate(candidate_id):
 
 init_db()
 
+@app.route("/create-job", methods=["GET", "POST"])
+def create_job():
 
+    if request.method == "POST":
+
+        job_title = request.form["job_title"]
+        job_description = request.form["job_description"]
+        required_skills = request.form["required_skills"]
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO jobs
+            (
+                job_title,
+                job_description,
+                required_skills
+            )
+            VALUES (?, ?, ?)
+        """, (
+            job_title,
+            job_description,
+            required_skills
+        ))
+
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return redirect("/jobs")
+
+    return render_template("create_job.html")
 # -----------------------------
 # RUN APPLICATION
 # -----------------------------
