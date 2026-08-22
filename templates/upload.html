@@ -9,6 +9,79 @@
 
     <form action="/upload" method="POST">
 
+        <label>Full Name</label>
+
+<input
+    type="text"
+    name="full_name"
+    required
+>
+
+
+<label>Email</label>
+
+<input
+    type="email"
+    name="email"
+    required
+>
+
+
+<label>GitHub Username</label>
+
+<input
+    type="text"
+    name="github_username"
+    placeholder="example: octocat"
+>
+
+
+<label>LinkedIn</label>
+
+<input
+    type="url"
+    name="linkedin"
+    placeholder="https://linkedin.com/in/example"
+>
+
+
+<label>Portfolio</label>
+
+<input
+    type="url"
+    name="portfolio"
+    placeholder="https://example.com"
+>
+
+
+<label>Skills</label>
+
+<textarea
+    name="skills"
+    placeholder="Python, Flask, SQL, REST API, JavaScript"
+></textarea>
+
+
+<label>Experience / Projects</label>
+
+<textarea
+    name="experience"
+    placeholder="Describe relevant experience, projects, technologies used, responsibilities, etc."
+></textarea>
+
+
+<label>Additional Information</label>
+
+<textarea
+    name="job_description"
+    placeholder="Any additional candidate information..."
+></textarea>
+
+
+<button type="submit">
+    Upload Candidate
+</button>
+
     </form>
 
 </body>
