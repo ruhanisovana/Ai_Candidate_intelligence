@@ -211,17 +211,20 @@ def candidate_detail(candidate_id):
     conn = get_db_connection()
 
     candidate = conn.execute("""
-        SELECT
-            id,
-            full_name,
-            email,
-            github_username,
-            portfolio,
-            job_description,
-            created_at
-        FROM candidates
-        WHERE id = ?
-    """, (candidate_id,)).fetchone()
+    SELECT
+        id,
+        full_name,
+        email,
+        github_username,
+        linkedin,
+        portfolio,
+        skills,
+        experience,
+        job_description,
+        created_at
+    FROM candidates
+    WHERE id = ?
+""", (candidate_id,)).fetchone()
 
     conn.close()
 
