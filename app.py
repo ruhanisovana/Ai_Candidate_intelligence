@@ -239,6 +239,45 @@ def create_job():
         return redirect("/jobs")
 
     return render_template("create_job.html")
+
+@app.route("/jobs")
+def jobs_page():
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            id,
+            job_title,
+            job_description,
+            required_skills,
+            created_at
+        FROM jobs
+        ORDER BY id DESC
+    """)
+
+    rows = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    jobs = []
+
+    for row in rows:
+
+        jobs.append({
+            "id": row[0],
+            "job_title": row[1],
+            "job_description": row[2],
+            "required_skills": row[3],
+            "created_at": row[4]
+        })
+
+    return render_template(
+        "jobs.html",
+        jobs=jobs
+    )
 # -----------------------------
 # RUN APPLICATION
 # -----------------------------
