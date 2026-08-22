@@ -24,63 +24,6 @@ def get_db_connection():
 # CREATE DATABASE TABLE
 # -----------------------------
 
-def init_db():
-
-    conn = get_db_connection()
-
-    conn.execute("""
-    CREATE TABLE IF NOT EXISTS candidates (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        full_name TEXT NOT NULL,
-        email TEXT NOT NULL,
-        github_username TEXT,
-        linkedin TEXT,
-        portfolio TEXT,
-        skills TEXT,
-        experience TEXT,
-        job_description TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-""")
-
-    # Add new columns to existing databases if they don't exist
-
-columns = conn.execute("""
-    PRAGMA table_info(candidates)
-""").fetchall()
-
-existing_columns = [column["name"] for column in columns]
-
-if "linkedin" not in existing_columns:
-    conn.execute("""
-        ALTER TABLE candidates
-        ADD COLUMN linkedin TEXT
-    """)
-
-if "skills" not in existing_columns:
-    conn.execute("""
-        ALTER TABLE candidates
-        ADD COLUMN skills TEXT
-    """)
-
-if "experience" not in existing_columns:
-    conn.execute("""
-        ALTER TABLE candidates
-        ADD COLUMN experience TEXT
-    """)
-
-    conn.execute("""
-CREATE TABLE IF NOT EXISTS jobs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    job_title TEXT NOT NULL,
-    job_description TEXT NOT NULL,
-    required_skills TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
-""")
-
-    conn.commit()
-    conn.close()
 
 
 # -----------------------------
