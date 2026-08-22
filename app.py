@@ -43,6 +43,32 @@ def init_db():
     )
 """)
 
+    # Add new columns to existing databases if they don't exist
+
+columns = conn.execute("""
+    PRAGMA table_info(candidates)
+""").fetchall()
+
+existing_columns = [column["name"] for column in columns]
+
+if "linkedin" not in existing_columns:
+    conn.execute("""
+        ALTER TABLE candidates
+        ADD COLUMN linkedin TEXT
+    """)
+
+if "skills" not in existing_columns:
+    conn.execute("""
+        ALTER TABLE candidates
+        ADD COLUMN skills TEXT
+    """)
+
+if "experience" not in existing_columns:
+    conn.execute("""
+        ALTER TABLE candidates
+        ADD COLUMN experience TEXT
+    """)
+
     conn.execute("""
 CREATE TABLE IF NOT EXISTS jobs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
