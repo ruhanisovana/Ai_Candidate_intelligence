@@ -40,6 +40,16 @@ def init_db():
         )
     """)
 
+    conn.execute("""
+CREATE TABLE IF NOT EXISTS jobs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    job_title TEXT NOT NULL,
+    job_description TEXT NOT NULL,
+    required_skills TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+""")
+
     conn.commit()
     conn.close()
 
