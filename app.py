@@ -29,16 +29,19 @@ def init_db():
     conn = get_db_connection()
 
     conn.execute("""
-        CREATE TABLE IF NOT EXISTS candidates (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            full_name TEXT NOT NULL,
-            email TEXT NOT NULL,
-            github_username TEXT,
-            portfolio TEXT,
-            job_description TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
+    CREATE TABLE IF NOT EXISTS candidates (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        full_name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        github_username TEXT,
+        linkedin TEXT,
+        portfolio TEXT,
+        skills TEXT,
+        experience TEXT,
+        job_description TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+""")
 
     conn.execute("""
 CREATE TABLE IF NOT EXISTS jobs (
