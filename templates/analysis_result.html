@@ -1,1 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Candidate Analysis</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            margin: 0;
+            padding: 25px;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .percentage {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .assessment {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .evidence-level {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 6px;
+            background: #eef2ff;
+            color: #3730a3;
+            font-weight: bold;
+        }
+
+        .skill {
+            padding: 10px 12px;
+            margin: 7px 0;
+            border-radius: 7px;
+        }
+
+        .matched {
+            background: #ecfdf5;
+            color: #166534;
+        }
+
+        .missing {
+            background: #fff7ed;
+            color: #9a3412;
+        }
+
+        .source {
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin: 12px 0;
+        }
+
+        .source-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .source-url {
+            word-break: break-word;
+            margin-bottom: 8px;
+        }
+
+        .source-url a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        .status {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .evidence-item {
+            margin: 6px 0;
+        }
+
+        .candidate-info {
+            line-height: 1.7;
+        }
+
+        .button {
+            display: inline-block;
+            text-decoration: none;
+            background: #2563eb;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 7px;
+            margin-right: 8px;
+        }
+
+        .button:hover {
+            background: #1d4ed8;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+
+    <!-- ================================= -->
+    <!-- HEADER -->
+    <!-- ================================= -->
+
+    <div class="card">
+
+        <h1>Candidate Analysis</h1>
+
+        <h2>
+            {{ candidate["full_name"] }}
+        </h2>
+
+        <p>
+            <strong>Job:</strong>
+            {{ job["job_title"] }}
+        </p>
+
+    </div>
+
+
+    <!-- ================================= -->
+    <!-- OVERALL RESULT -->
+    <!-- ================================= -->
+
+    <div class="card">
+
+        <h2>Overall Assessment</h2>
+
+        <div class="percentage">
+            {{ match_percentage }}%
+        </div>
+
+        <div class="assessment">
+            {{ overall_assessment }}
+        </div>
+
+        <br>
+
+        <span class="evidence-level">
+            Evidence: {{ evidence_level }}
+        </span>
+
+    </div>
+
+
+    <!-- ================================= -->
+    <!-- MATCHED SKILLS -->
+    <!-- ================================= -->
+
+    <div class="card">
+
+        <h2>Matched Skills</h2>
+
+        {% if matched_skills %}
+
+            {% for skill in matched_skills %}
+
+                <div class="skill matched">
+                    ✓ {{ skill }}
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p>
+                No required skills were matched.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- ================================= -->
+    <!-- MISSING SKILLS -->
+    <!-- ================================= -->
+
+    <div class="card">
+
+        <h2>Missing / Unclear Skills</h2>
+
+        {% if missing_skills %}
+
+            {% for skill in missing_skills %}
+
+                <div class="skill missing">
+                    △ {{ skill }}
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p>
+                All listed job requirements were matched.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- ================================= -->
+    <!-- CANDIDATE INFORMATION -->
+    <!-- ================================= -->
+
+    <div class="card">
+
+        <h2>Candidate Information</h2>
+
+        <div class="candidate-info">
+
+            <p>
+                <strong>Email:</strong>
+                {{ candidate["email"] }}
+            </p>
+
+            <p>
+                <strong>Skills:</strong>
+                {{ candidate["skills"] or "Not provided" }}
+            </p>
+
+            <p>
+                <strong>Experience / Projects:</strong>
+                {{ candidate["experience"] or "Not provided" }}
+            </p>
+
+            <p>
+                <strong>Additional Information:</strong>
+                {{ candidate["job_description"] or "Not provided" }}
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================= -->
+    <!-- EXTERNAL SOURCES -->
+    <!-- ================================= -->
+
+    <div class="card">
+
+        <h2>Candidate Sources</h2>
+
+
+        <!-- GITHUB -->
+
+        {% if github_analysis["url"] %}
+
+        <div class="source">
+
+            <div class="source-title">
+                GitHub
+            </div>
+
+            <div class="source-url">
+
+                <a
+                    href="{{ github_analysis['url'] }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    {{ github_analysis["url"] }}
+                </a>
+
+            </div>
+
+            <div class="status">
+                {{ github_analysis["status"] }}
+            </div>
+
+            {% for evidence in github_analysis["evidence"] %}
+
+                <div class="evidence-item">
+                    ✓ {{ evidence }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- LINKEDIN -->
+
+        {% if linkedin_analysis["url"] %}
+
+        <div class="source">
+
+            <div class="source-title">
+                LinkedIn
+            </div>
+
+            <div class="source-url">
+
+                <a
+                    href="{{ linkedin_analysis['url'] }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    {{ linkedin_analysis["url"] }}
+                </a>
+
+            </div>
+
+            <div class="status">
+                {{ linkedin_analysis["status"] }}
+            </div>
+
+            {% for evidence in linkedin_analysis["evidence"] %}
+
+                <div class="evidence-item">
+                    ✓ {{ evidence }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- PORTFOLIO -->
+
+        {% if portfolio_analysis["url"] %}
+
+        <div class="source">
+
+            <div class="source-title">
+                Portfolio / Website
+            </div>
+
+            <div class="source-url">
+
+                <a
+                    href="{{ portfolio_analysis['url'] }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    {{ portfolio_analysis["url"] }}
+                </a>
+
+            </div>
+
+            <div class="status">
+                {{ portfolio_analysis["status"] }}
+            </div>
+
+            {% for evidence in portfolio_analysis["evidence"] %}
+
+                <div class="evidence-item">
+                    ✓ {{ evidence }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% endif %}
+
+
+        {% if not available_sources %}
+
+            <p>
+                No external profile or portfolio was provided.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- ================================= -->
+    <!-- JOB INFORMATION -->
+    <!-- ================================= -->
+
+    <div class="card">
+
+        <h2>Job Requirements</h2>
+
+        <p>
+            <strong>Position:</strong>
+            {{ job["job_title"] }}
+        </p>
+
+        <p>
+            <strong>Required Skills:</strong>
+            {{ job["required_skills"] }}
+        </p>
+
+        <p>
+            <strong>Description:</strong>
+            {{ job["job_description"] }}
+        </p>
+
+    </div>
+
+
+    <!-- ================================= -->
+    <!-- NAVIGATION -->
+    <!-- ================================= -->
+
+    <div class="card">
+
+        <a
+            href="/candidate/{{ candidate['id'] }}"
+            class="button"
+        >
+            ← Back to Candidate
+        </a>
+
+        <a
+            href="/candidates"
+            class="button"
+        >
+            All Candidates
+        </a>
+
+    </div>
+
+
+</div>
+
+</body>
+
+  </html>
