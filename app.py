@@ -573,12 +573,6 @@ def analyze_candidate(candidate_id):
     # 2. PREPARE REQUIRED SKILLS
     # ==================================================
 
-    required_skills = [
-        skill.strip().lower()
-        for skill in job["required_skills"].split(","):
-        if skill.strip()
-    ]
-
     # ==================================================
     # 3. CANDIDATE EVIDENCE
     # ==================================================
