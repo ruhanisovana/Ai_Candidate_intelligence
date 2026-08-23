@@ -440,7 +440,7 @@ def analyze_candidate(candidate_id):
     candidate["skills"] or "",
     candidate["experience"] or "",
     candidate["job_description"] or ""
-]).lower()-------------------------
+]).lower()
     # MATCH SKILLS
     # -----------------------------
 
