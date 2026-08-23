@@ -455,7 +455,7 @@ def analyze_url(url):
         }
 
         for skill in job["required_skills"].split(",")
-        if skill.strip()
+        if skill.strip():
     
 
     # -----------------------------
