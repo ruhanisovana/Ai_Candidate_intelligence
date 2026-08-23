@@ -455,7 +455,7 @@ def analyze_url(url):
         }
 
         for skill in job["required_skills"].split(",")
-        if skill.strip():
+        if skill.strip()
     
 
     # -----------------------------
@@ -575,7 +575,7 @@ def analyze_candidate(candidate_id):
 
     required_skills = [
         skill.strip().lower()
-        for skill in job["required_skills"].split(",")
+        for skill in job["required_skills"].split(","):
         if skill.strip()
     ]
 
