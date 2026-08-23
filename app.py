@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect
 import sqlite3
 import re
+import requests
+from urllib.parse import urlparse
 
 app = Flask(__name__)
 
@@ -341,8 +343,6 @@ def jobs_page():
         jobs=jobs
     )
 
-import requests
-from urllib.parse import urlparse
 
 
 def analyze_url(url):
