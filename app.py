@@ -430,13 +430,14 @@ def analyze_candidate(candidate_id):
 
     # Combine candidate information
     candidate_text = " ".join([
-        candidate["full_name"] or "",
-        candidate["github_username"] or "",
-        candidate["portfolio"] or "",
-        candidate["job_description"] or ""
-    ]).lower()
-
-    # -----------------------------
+    candidate["full_name"] or "",
+    candidate["github_username"] or "",
+    candidate["linkedin"] or "",
+    candidate["portfolio"] or "",
+    candidate["skills"] or "",
+    candidate["experience"] or "",
+    candidate["job_description"] or ""
+]).lower()-------------------------
     # MATCH SKILLS
     # -----------------------------
 
