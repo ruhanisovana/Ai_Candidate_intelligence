@@ -342,6 +342,119 @@ def jobs_page():
         jobs=jobs
     )
 
+import requests
+from urllib.parse import urlparse
+
+
+def analyze_url(url):
+    if not url:
+        return {
+            "url": "",
+            "type": "unknown",
+            "status": "not provided",
+            "evidence": []
+        }
+
+    url = url.strip()
+
+    # Basic URL validation
+    parsed = urlparse(url)
+
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        return {
+            "url": url,
+            "type": "invalid",
+            "status": "invalid URL",
+            "evidence": []
+        }
+
+    hostname = parsed.netloc.lower()
+
+    # -------------------------
+    # IDENTIFY SOURCE
+    # -------------------------
+
+    if "github.com" in hostname:
+        source_type = "github"
+
+    elif "linkedin.com" in hostname:
+        source_type = "linkedin"
+
+    else:
+        source_type = "website"
+
+    # -------------------------
+    # LINKEDIN
+    # -------------------------
+
+    if source_type == "linkedin":
+        return {
+            "url": url,
+            "type": "linkedin",
+            "status": "profile link provided",
+            "evidence": [
+                "LinkedIn profile supplied by candidate."
+            ]
+        }
+
+    # -------------------------
+    # GITHUB
+    # -------------------------
+
+    if source_type == "github":
+        return {
+            "url": url,
+            "type": "github",
+            "status": "GitHub source detected",
+            "evidence": [
+                "GitHub profile/repository source supplied."
+            ]
+        }
+
+    # -------------------------
+    # PUBLIC WEBSITE
+    # -------------------------
+
+    try:
+
+        response = requests.get(
+            url,
+            timeout=8,
+            headers={
+                "User-Agent": "AI-Candidate-Intelligence/1.0"
+            }
+        )
+
+        if response.status_code == 200:
+
+            text = response.text[:20000]
+
+            return {
+                "url": url,
+                "type": "website",
+                "status": "accessible",
+                "evidence": [
+                    "Public webpage successfully accessed.",
+                    f"Response size: {len(response.text)} characters."
+                ]
+            }
+
+        return {
+            "url": url,
+            "type": "website",
+            "status": f"HTTP {response.status_code}",
+            "evidence": []
+        }
+
+    except requests.RequestException as e:
+
+        return {
+            "url": url,
+            "type": "website",
+            "status": "could not access",
+            "evidence": []
+        }
+
 @app.route("/candidate/<int:candidate_id>/analyze", methods=["GET", "POST"])
 def analyze_candidate(candidate_id):
 
