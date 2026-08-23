@@ -459,9 +459,255 @@ def analyze_url(url):
     ]
 
     # -----------------------------
-    # COMBINE CANDIDATE INFORMATION
+    # COMBINE CANDIDATE INFORMATION    # -----------------------------
+@app.route("/candidate/<int:candidate_id>/analyze", methods=["GET", "POST"])
+def analyze_candidate(candidate_id):
+
+    conn = get_db_connection()
+
+    # -----------------------------
+    # GET CANDIDATE
     # -----------------------------
 
+    candidate = conn.execute("""
+        SELECT
+            id,
+            full_name,
+            email,
+            github_username,
+            linkedin,
+            portfolio,
+            skills,
+            experience,
+            job_description,
+            created_at
+        FROM candidates
+        WHERE id = ?
+    """, (candidate_id,)).fetchone()
+
+    if candidate is None:
+        conn.close()
+        return "Candidate not found.", 404
+
+    # -----------------------------
+    # GET JOBS
+    # -----------------------------
+
+    jobs = conn.execute("""
+        SELECT
+            id,
+            job_title,
+            job_description,
+            required_skills,
+            created_at
+        FROM jobs
+        ORDER BY id DESC
+    """).fetchall()
+
+    conn.close()
+
+    # -----------------------------
+    # NO JOBS
+    # -----------------------------
+
+    if not jobs:
+
+        return """
+        <h2>No jobs available.</h2>
+        <p>Create a job before analyzing a candidate.</p>
+        <a href="/create-job">Create Job</a>
+        """
+
+    # -----------------------------
+    # SELECT JOB
+    # -----------------------------
+
+    if request.method == "GET":
+
+        return render_template(
+            "analyze_candidate.html",
+            candidate=candidate,
+            jobs=jobs
+        )
+
+    job_id = request.form.get("job_id")
+
+    if not job_id:
+        return "Please select a job.", 400
+
+    conn = get_db_connection()
+
+    job = conn.execute("""
+        SELECT
+            id,
+            job_title,
+            job_description,
+            required_skills,
+            created_at
+        FROM jobs
+        WHERE id = ?
+    """, (job_id,)).fetchone()
+
+    conn.close()
+
+    if job is None:
+        return "Job not found.", 404
+
+    # ==================================================
+    # 1. ANALYZE CANDIDATE-PROVIDED SOURCES
+    # ==================================================
+
+    github_analysis = analyze_url(
+        candidate["github_username"]
+    )
+
+    linkedin_analysis = analyze_url(
+        candidate["linkedin"]
+    )
+
+    portfolio_analysis = analyze_url(
+        candidate["portfolio"]
+    )
+
+    # ==================================================
+    # 2. PREPARE REQUIRED SKILLS
+    # ==================================================
+
+    required_skills = [
+        skill.strip().lower()
+        for skill in job["required_skills"].split(",")
+        if skill.strip()
+    ]
+
+    # ==================================================
+    # 3. CANDIDATE EVIDENCE
+    # ==================================================
+
+    candidate_text = " ".join([
+        candidate["full_name"] or "",
+        candidate["skills"] or "",
+        candidate["experience"] or "",
+        candidate["job_description"] or "",
+        candidate["github_username"] or "",
+        candidate["linkedin"] or "",
+        candidate["portfolio"] or ""
+    ]).lower()
+
+    # ==================================================
+    # 4. MATCH REQUIRED SKILLS
+    # ==================================================
+
+    matched_skills = []
+    missing_skills = []
+
+    for skill in required_skills:
+
+        pattern = r"(?<!\w)" + re.escape(skill) + r"(?!\w)"
+
+        if re.search(pattern, candidate_text):
+
+            matched_skills.append(skill)
+
+        else:
+
+            missing_skills.append(skill)
+
+    # ==================================================
+    # 5. MATCH PERCENTAGE
+    # ==================================================
+
+    if required_skills:
+
+        match_percentage = round(
+            (
+                len(matched_skills)
+                /
+                len(required_skills)
+            ) * 100
+        )
+
+    else:
+
+        match_percentage = 0
+
+    # ==================================================
+    # 6. SOURCE SUMMARY
+    # ==================================================
+
+    sources = [
+        github_analysis,
+        linkedin_analysis,
+        portfolio_analysis
+    ]
+
+    available_sources = [
+        source
+        for source in sources
+        if source.get("url")
+    ]
+
+    # ==================================================
+    # 7. BASIC EVIDENCE LEVEL
+    # ==================================================
+
+    if len(available_sources) >= 2:
+        evidence_level = "Good"
+
+    elif len(available_sources) == 1:
+        evidence_level = "Limited"
+
+    else:
+        evidence_level = "Insufficient"
+
+    # ==================================================
+    # 8. OVERALL ASSESSMENT
+    # ==================================================
+
+    if match_percentage >= 80:
+
+        overall_assessment = "Strong potential match"
+
+    elif match_percentage >= 60:
+
+        overall_assessment = "Moderate potential match"
+
+    elif match_percentage >= 40:
+
+        overall_assessment = "Partial match"
+
+    else:
+
+        overall_assessment = "Low requirement match"
+
+    # ==================================================
+    # 9. SEND EVERYTHING TO RESULT PAGE
+    # ==================================================
+
+    return render_template(
+        "analysis_result.html",
+
+        candidate=candidate,
+
+        job=job,
+
+        matched_skills=matched_skills,
+
+        missing_skills=missing_skills,
+
+        match_percentage=match_percentage,
+
+        github_analysis=github_analysis,
+
+        linkedin_analysis=linkedin_analysis,
+
+        portfolio_analysis=portfolio_analysis,
+
+        available_sources=available_sources,
+
+        evidence_level=evidence_level,
+
+        overall_assessment=overall_assessment
+    )
 
 
 if __name__ == "__main__":
