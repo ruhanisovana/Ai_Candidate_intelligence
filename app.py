@@ -445,17 +445,16 @@ def analyze_candidate(candidate_id):
     # -----------------------------
 
     matched_skills = []
-    missing_skills = []
+missing_skills = []
 
-    for skill in required_skills:
+for skill in required_skills:
 
-        if skill in candidate_text:
-            matched_skills.append(skill)
-        else:
-            missing_skills.append(skill)
+    pattern = r"(?<!\w)" + re.escape(skill) + r"(?!\w)"
 
-    # -----------------------------
-    # CALCULATE MATCH
+    if re.search(pattern, candidate_text):
+        matched_skills.append(skill)
+    else:
+        missing_skills.append(skill)   # CALCULATE MATCH
     # -----------------------------
 
     if required_skills:
