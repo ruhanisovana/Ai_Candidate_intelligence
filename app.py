@@ -752,6 +752,187 @@ def analyze_github_url(url):
             }
 =============================================
 
+def analyze_website(url):
+
+    try:
+
+        response = requests.get(
+            url,
+            timeout=10,
+            headers={
+                "User-Agent":
+                "Mozilla/5.0 AI-Candidate-Intelligence/1.0"
+            }
+        )
+
+        if response.status_code != 200:
+
+            return {
+                "url": url,
+                "type": "website",
+                "status": f"HTTP {response.status_code}",
+                "title": "",
+                "description": "",
+                "technologies": [],
+                "evidence": [
+                    f"Website returned HTTP {response.status_code}."
+                ],
+                "confidence": "Low"
+            }
+
+        html = response.text
+
+        # -------------------------------------------------
+        # BASIC HTML ANALYSIS
+        # -------------------------------------------------
+
+        title = ""
+
+        title_match = re.search(
+            r"<title[^>]*>(.*?)</title>",
+            html,
+            re.IGNORECASE | re.DOTALL
+        )
+
+        if title_match:
+
+            title = re.sub(
+                r"\s+",
+                " ",
+                title_match.group(1)
+            ).strip()
+
+        # -------------------------------------------------
+        # TECHNOLOGY DETECTION
+        # -------------------------------------------------
+
+        technology_patterns = {
+
+            "Python": [
+                "python"
+            ],
+
+            "Flask": [
+                "flask"
+            ],
+
+            "Django": [
+                "django"
+            ],
+
+            "JavaScript": [
+                "javascript",
+                ".js"
+            ],
+
+            "TypeScript": [
+                "typescript"
+            ],
+
+            "React": [
+                "react"
+            ],
+
+            "Node.js": [
+                "node.js",
+                "nodejs"
+            ],
+
+            "HTML": [
+                "<html",
+                "<!doctype html"
+            ],
+
+            "CSS": [
+                "<style",
+                ".css"
+            ],
+
+            "Bootstrap": [
+                "bootstrap"
+            ],
+
+            "Tailwind": [
+                "tailwind"
+            ],
+
+            "API": [
+                "api",
+                "/api/"
+            ]
+        }
+
+        html_lower = html.lower()
+
+        technologies = []
+
+        for technology, patterns in technology_patterns.items():
+
+            for pattern in patterns:
+
+                if pattern.lower() in html_lower:
+
+                    technologies.append(technology)
+                    break
+
+        # -------------------------------------------------
+        # EVIDENCE
+        # -------------------------------------------------
+
+        evidence = [
+            "Public webpage successfully accessed.",
+            f"HTTP status: {response.status_code}",
+            f"Page size: {len(html)} characters."
+        ]
+
+        if title:
+
+            evidence.append(
+                f"Page title: {title}"
+            )
+
+        if technologies:
+
+            evidence.append(
+                "Detected technologies: "
+                + ", ".join(technologies)
+            )
+
+        # -------------------------------------------------
+        # CONFIDENCE
+        # -------------------------------------------------
+
+        if technologies:
+            confidence = "Medium"
+        else:
+            confidence = "Low"
+
+        return {
+            "url": url,
+            "type": "website",
+            "status": "analyzed",
+            "title": title,
+            "description": "",
+            "technologies": technologies,
+            "evidence": evidence,
+            "confidence": confidence
+        }
+
+    except requests.RequestException:
+
+        return {
+            "url": url,
+            "type": "website",
+            "status": "could not access",
+            "title": "",
+            "description": "",
+            "technologies": [],
+            "evidence": [
+                "Website could not be accessed."
+            ],
+            "confidence": "Low"
+        }
+
 @app.route(
     "/candidate/<int:candidate_id>/analyze",
     methods=["GET", "POST"]
