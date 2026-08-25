@@ -1057,17 +1057,38 @@ def analyze_candidate(candidate_id):
     # 1. ANALYZE CANDIDATE SOURCES
     # =====================================================
 
-    github_analysis = analyze_url(
-        candidate["github_username"]
+    # =====================================================
+# ANALYZE ALL CANDIDATE SOURCES
+# =====================================================
+
+conn = get_db_connection()
+
+source_rows = conn.execute("""
+    SELECT
+        id,
+        url,
+        source_type,
+        status,
+        title,
+        description,
+        technologies,
+        evidence
+    FROM candidate_sources
+    WHERE candidate_id = ?
+    ORDER BY id ASC
+""", (candidate_id,)).fetchall()
+
+conn.close()
+
+source_analyses = []
+
+for source in source_rows:
+
+    analysis = analyze_url(
+        source["url"]
     )
 
-    linkedin_analysis = analyze_url(
-        candidate["linkedin"]
-    )
-
-    portfolio_analysis = analyze_url(
-        candidate["portfolio"]
-    )
+    source_analyses.append(analysis)
 
     # =====================================================
     # 2. PREPARE REQUIRED SKILLS
