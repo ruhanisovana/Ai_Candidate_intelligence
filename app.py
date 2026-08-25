@@ -1104,17 +1104,38 @@ for source in source_rows:
     # 3. COMBINE CANDIDATE INFORMATION
     # =====================================================
 
-    candidate_text = " ".join([
-        candidate["full_name"] or "",
-        candidate["skills"] or "",
-        candidate["experience"] or "",
-        candidate["job_description"] or "",
-        candidate["github_username"] or "",
-        candidate["linkedin"] or "",
-        candidate["portfolio"] or ""
-    ]).lower()
-
     # =====================================================
+# BUILD EVIDENCE TEXT
+# =====================================================
+
+candidate_text_parts = [
+    candidate["full_name"] or "",
+    candidate["skills"] or "",
+    candidate["experience"] or "",
+    candidate["job_description"] or ""
+]
+
+for analysis in source_analyses:
+
+    candidate_text_parts.append(
+        analysis.get("title", "")
+    )
+
+    candidate_text_parts.append(
+        analysis.get("description", "")
+    )
+
+    candidate_text_parts.extend(
+        analysis.get("technologies", [])
+    )
+
+    candidate_text_parts.extend(
+        analysis.get("evidence", [])
+    )
+
+candidate_text = " ".join(
+    candidate_text_parts
+).lower()
     # 4. MATCH REQUIRED SKILLS
     # =====================================================
 
