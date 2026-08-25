@@ -97,6 +97,22 @@ def init_db():
         )
     """)
 
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS candidate_sources (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        candidate_id INTEGER NOT NULL,
+        url TEXT NOT NULL,
+        source_type TEXT DEFAULT 'unknown',
+        status TEXT DEFAULT 'pending',
+        title TEXT,
+        description TEXT,
+        technologies TEXT,
+        evidence TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (candidate_id) REFERENCES candidates(id)
+    )
+""")
+
     conn.commit()
     conn.close()
 
