@@ -509,7 +509,247 @@ def jobs_page():
     return analyze_website(url) =========================================================
 
 --------------------------------------
+def analyze_github_url(url):
 
+    parsed = urlparse(url)
+
+    parts = [
+        part
+        for part in parsed.path.strip("/").split("/")
+        if part
+    ]
+
+    if not parts:
+
+        return {
+            "url": url,
+            "type": "github",
+            "status": "GitHub username not found",
+            "title": "",
+            "description": "",
+            "technologies": [],
+            "evidence": [],
+            "confidence": "Low"
+        }
+
+    username = parts[0]
+
+    api_url = f"https://api.github.com/users/{username}"
+
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "AI-Candidate-Intelligence/1.0"
+    }
+
+    try:
+
+        # -------------------------------------------------
+        # GET PROFILE
+        # -------------------------------------------------
+
+        profile_response = requests.get(
+            api_url,
+            headers=headers,
+            timeout=10
+        )
+
+        if profile_response.status_code != 200:
+
+            return {
+                "url": url,
+                "type": "github",
+                "status": f"GitHub HTTP {profile_response.status_code}",
+                "title": "",
+                "description": "",
+                "technologies": [],
+                "evidence": [
+                    "GitHub profile could not be retrieved."
+                ],
+                "confidence": "Low"
+            }
+
+        profile = profile_response.json()
+
+        # -------------------------------------------------
+        # GET REPOSITORIES
+        # -------------------------------------------------
+
+        repos_response = requests.get(
+            f"https://api.github.com/users/{username}/repos",
+            params={
+                "per_page": 100,
+                "sort": "updated"
+            },
+            headers=headers,
+            timeout=10
+        )
+
+        repositories = []
+
+        if repos_response.status_code == 200:
+            repositories = repos_response.json()
+
+        # -------------------------------------------------
+        # ANALYZE LANGUAGES
+        # -------------------------------------------------
+
+        languages = set()
+
+        repository_evidence = []
+
+        for repo in repositories:
+
+            language = repo.get("language")
+
+            if language:
+                languages.add(language)
+
+            repository_evidence.append({
+                "name": repo.get("name"),
+                "description": repo.get("description") or "",
+                "language": language or "Unknown",
+                "stars": repo.get("stargazers_count", 0),
+                "forks": repo.get("forks_count", 0),
+                "html_url": repo.get("html_url")
+            })
+
+        # -------------------------------------------------
+        # TECHNOLOGY KEYWORDS
+        # -------------------------------------------------
+
+        technology_keywords = [
+            "python",
+            "flask",
+            "django",
+            "fastapi",
+            "javascript",
+            "typescript",
+            "react",
+            "node.js",
+            "node",
+            "html",
+            "css",
+            "sql",
+            "sqlite",
+            "postgresql",
+            "mysql",
+            "mongodb",
+            "java",
+            "c",
+            "c++",
+            "docker",
+            "git",
+            "api",
+            "rest",
+            "graphql"
+        ]
+
+        searchable_text = ""
+
+        for repo in repository_evidence:
+
+            searchable_text += " "
+            searchable_text += repo["name"] or ""
+            searchable_text += " "
+            searchable_text += repo["description"] or ""
+            searchable_text += " "
+            searchable_text += repo["language"] or ""
+
+        searchable_text = searchable_text.lower()
+
+        technologies = []
+
+        for technology in technology_keywords:
+
+            if technology.lower() in searchable_text:
+                technologies.append(technology)
+
+        # Add GitHub languages
+        for language in languages:
+
+            if language.lower() not in [
+                item.lower()
+                for item in technologies
+            ]:
+                technologies.append(language)
+
+        # -------------------------------------------------
+        # EVIDENCE
+        # -------------------------------------------------
+
+        evidence = []
+
+        evidence.append(
+            f"GitHub username: {username}"
+        )
+
+        evidence.append(
+            f"Public repositories found: {len(repositories)}"
+        )
+
+        if languages:
+
+            evidence.append(
+                "Detected repository languages: "
+                + ", ".join(sorted(languages))
+            )
+
+        if technologies:
+
+            evidence.append(
+                "Detected technologies: "
+                + ", ".join(sorted(technologies))
+            )
+
+        if profile.get("bio"):
+
+            evidence.append(
+                f"GitHub bio: {profile['bio']}"
+            )
+
+        evidence.append(
+            f"Public followers: {profile.get('followers', 0)}"
+        )
+
+        # -------------------------------------------------
+        # CONFIDENCE
+        # -------------------------------------------------
+
+        if repositories and technologies:
+            confidence = "High"
+
+        elif repositories:
+            confidence = "Medium"
+
+        else:
+            confidence = "Low"
+
+        return {
+            "url": url,
+            "type": "github",
+            "status": "analyzed",
+            "title": profile.get("name") or username,
+            "description": profile.get("bio") or "",
+            "technologies": sorted(technologies),
+            "evidence": evidence,
+            "repositories": repository_evidence,
+            "confidence": confidence
+        }
+
+    except requests.RequestException:
+
+        return {
+            "url": url,
+            "type": "github",
+            "status": "GitHub request failed",
+            "title": "",
+            "description": "",
+            "technologies": [],
+            "evidence": [
+                "Could not connect to GitHub."
+            ],
+            "confidence": "Low"
+            }
 =============================================
 
 @app.route(
