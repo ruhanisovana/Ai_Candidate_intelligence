@@ -434,7 +434,79 @@ def jobs_page():
 
 # =========================================================
 # ANALYZE A PUBLIC URL
-# =========================================================
+#def analyze_url(url):
+    """
+    Analyze a candidate-provided public URL.
+
+    Supports:
+    - GitHub public profiles/repositories
+    - LinkedIn URL verification
+    - Public websites/portfolio pages
+    """
+
+    if not url:
+        return {
+            "url": "",
+            "type": "unknown",
+            "status": "not provided",
+            "title": "",
+            "description": "",
+            "technologies": [],
+            "evidence": [],
+            "confidence": "None"
+        }
+
+    url = url.strip()
+
+    parsed = urlparse(url)
+
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        return {
+            "url": url,
+            "type": "invalid",
+            "status": "invalid URL",
+            "title": "",
+            "description": "",
+            "technologies": [],
+            "evidence": [],
+            "confidence": "None"
+        }
+
+    hostname = parsed.netloc.lower()
+
+    # =====================================================
+    # GITHUB
+    # =====================================================
+
+    if "github.com" in hostname:
+
+        return analyze_github_url(url)
+
+    # =====================================================
+    # LINKEDIN
+    # =====================================================
+
+    if "linkedin.com" in hostname:
+
+        return {
+            "url": url,
+            "type": "linkedin",
+            "status": "profile URL supplied",
+            "title": "LinkedIn profile",
+            "description": "",
+            "technologies": [],
+            "evidence": [
+                "Candidate supplied a LinkedIn profile URL.",
+                "Profile content was not independently scraped."
+            ],
+            "confidence": "Limited"
+        }
+
+    # =====================================================
+    # PUBLIC WEBSITE
+    # =====================================================
+
+    return analyze_website(url) =========================================================
 
 --------------------------------------
 
