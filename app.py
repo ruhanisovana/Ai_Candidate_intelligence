@@ -205,6 +205,43 @@ def upload():
             job_description
         ))
 
+                # -------------------------------------------------
+        # SAVE CANDIDATE
+        # -------------------------------------------------
+
+        candidate_id = conn.execute("""
+            SELECT last_insert_rowid()
+        """).fetchone()[0]
+
+        # -------------------------------------------------
+        # SAVE CANDIDATE SOURCES
+        # -------------------------------------------------
+
+        source_urls = [
+            github_username,
+            linkedin,
+            portfolio
+        ]
+
+        for url in source_urls:
+
+            if url:
+
+                conn.execute("""
+                    INSERT INTO candidate_sources (
+                        candidate_id,
+                        url,
+                        source_type,
+                        status
+                    )
+                    VALUES (?, ?, ?, ?)
+                """, (
+                    candidate_id,
+                    url,
+                    "unknown",
+                    "pending"
+                ))
+
         conn.commit()
         conn.close()
 
